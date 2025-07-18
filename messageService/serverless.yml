@@ -1,0 +1,54 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: dathodev
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: messageService
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: ${env:AWS_REGION}
+  environment:
+    CLIENT_ID: ${ssm:/CLIENT_ID}
+    TABLE_NAME: ${ssm:/MESSAGE_TABLE_NAME}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+
+functions:
+  fetchMessage:
+    handler: handlers/fetchMessage.fetchMessage
+    events:
+      - httpApi:
+          path: /fetchMessage
+          method: get
+  sendMessage:
+    handler: handlers/sendMessage.sendMessage
+    events:
+      - httpApi:
+          path: /sendMessage
+          method: post
+  deleteMessage:
+    handler: handlers/deleteMessage.deleteMessage
+    events:
+      - httpApi:
+          path: /deleteMessage
+          method: delete
+  getMessage:
+    handler: handlers/getMessage.getMessage
+    events:
+      - httpApi:
+          path: /getMessage
+          method: get
+  updateMessage:
+    handler: handlers/updateMessage.updateMessage
+    events:
+      - httpApi:
+          path: /updateMessage
+          method: post
+  editMessage:
+    handler: handlers/editMessage.editMessage
+    events:
+      - httpApi:
+          path: /editMessage
+          method: post

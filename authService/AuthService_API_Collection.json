@@ -1,0 +1,128 @@
+{
+  "info": {
+    "_postman_id": "auth-service-collection",
+    "name": "Auth Service API",
+    "description": "Collection for testing AWS Cognito-based authentication service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Sign Up",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"TestPassword123!\",\n  \"fullName\": \"John Doe\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/signUp",
+          "host": ["{{baseUrl}}"],
+          "path": ["signUp"]
+        }
+      },
+      "description": "Register a new user with email, password, and full name"
+    },
+    {
+      "name": "Confirm Sign Up",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"test@example.com\",\n  \"confirmationCode\": \"123456\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/confirmSignUp",
+          "host": ["{{baseUrl}}"],
+          "path": ["confirmSignUp"]
+        }
+      },
+      "description": "Confirm user registration with the verification code sent to email"
+    },
+    {
+      "name": "Sign In",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"TestPassword123!\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/signIn",
+          "host": ["{{baseUrl}}"],
+          "path": ["signIn"]
+        }
+      },
+      "description": "Authenticate user with email and password"
+    },
+    {
+      "name": "Sign Out",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"accessToken\": \"{{accessToken}}\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/signOut",
+          "host": ["{{baseUrl}}"],
+          "path": ["signOut"]
+        }
+      },
+      "description": "Sign out user using their access token"
+    }
+  ],
+  "event": [
+    {
+      "listen": "test",
+      "script": {
+        "exec": [
+          "// Extract access token from sign in response",
+          "if (pm.info.requestName === 'Sign In') {",
+          "    var response = pm.response.json();",
+          "    if (response.AuthenticationResult && response.AuthenticationResult.AccessToken) {",
+          "        pm.environment.set('accessToken', response.AuthenticationResult.AccessToken);",
+          "        console.log('Access token saved to environment');",
+          "    }",
+          "}"
+        ],
+        "type": "text/javascript"
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://your-api-gateway-url.execute-api.region.amazonaws.com",
+      "type": "string"
+    },
+    {
+      "key": "accessToken",
+      "value": "",
+      "type": "string"
+    }
+  ]
+} 
