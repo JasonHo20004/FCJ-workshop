@@ -6,14 +6,34 @@ service: messageService
 provider:
   name: aws
   runtime: nodejs22.x
-  region: ${env:AWS_REGION}
+  region: ap-south-1
   environment:
     CLIENT_ID: ${ssm:/CLIENT_ID}
-    TABLE_NAME: ${ssm:/MESSAGE_TABLE_NAME}
+    MESSAGE_TABLE_NAME: ${ssm:/MESSAGE_TABLE_NAME}
   iamRoleStatements:
     - Effect: Allow
       Action:
         - dynamodb:PutItem
+        - dynamodb:GetItem
+        - dynamodb:DeleteItem
+        - dynamodb:Scan
+        - dynamodb:Query
+      Resource:
+        - arn:aws:dynamodb:ap-south-1:171986746705:table/Messages
+
+resources:
+  Resources:  
+    MessageTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: Messages
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: messageId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: messageId
+            KeyType: HASH
 
 functions:
   fetchMessage:

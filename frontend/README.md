@@ -67,3 +67,34 @@ export default tseslint.config([
   },
 ])
 ```
+
+# Chat UI (Telegram-like)
+
+This project now includes a modern, responsive chat interface built with React and Tailwind CSS.
+
+## Features
+- Telegram-inspired layout (sidebar, chat area, input box)
+- Responsive and clean design
+- Ready for integration with authentication and message services
+
+## Getting Started
+
+1. **Install dependencies:**
+   ```sh
+   npm install
+   ```
+2. **Start the development server:**
+   ```sh
+   npm run dev
+   ```
+
+## Integrating with Backend Services
+- The chat UI uses placeholder data and stub functions.
+- To connect to your real backend:
+  - Replace the placeholder message and conversation data with API calls to your messageService endpoints.
+  - Integrate authentication by wrapping the app with your auth context/provider and using login/register flows.
+  - For real-time updates, connect to your realTimeService WebSocket endpoint and update the message list on new events.
+
+## Customization
+- All UI is built with Tailwind CSS for easy theming and extension.
+- The main chat component is in `src/features/chat/Chat.tsx`.

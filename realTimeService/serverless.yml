@@ -1,0 +1,118 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: dathodev
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: realTimeService
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: ap-south-1
+  environment:
+    WEBSOCKET_TABLE_NAME: ${ssm:/WEBSOCKET_TABLE_NAME}
+    MESSAGE_TABLE_NAME: ${ssm:/MESSAGE_TABLE_NAME}
+    COGNITO_JWT_SECRET: ${ssm:/COGNITO_JWT_SECRET}
+    COGNITO_USER_POOL_ID: ${ssm:/COGNITO_USER_POOL_ID}
+    CONVERSATION_MEMBERS_TABLE: ${ssm:/CONVERSATION_MEMBERS_TABLE}
+    REDIS_HOST: ${ssm:/REDIS_HOST}
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+        - dynamodb:DeleteItem
+        - dynamodb:Scan
+        - dynamodb:Query
+        - sns:Publish
+      Resource:
+        - arn:aws:dynamodb:ap-south-1:171986746705:table/websocket-connections
+        - arn:aws:dynamodb:ap-south-1:171986746705:table/Messages
+        - arn:aws:dynamodb:ap-south-1:171986746705:table/conversation-members-table
+        - arn:aws:sns:ap-south-1:*:chat-message-topic
+
+resources:
+  Resources:
+    WebSocketTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: websocket-connections
+        AttributeDefinitions:
+          - AttributeName: connectionId
+            AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: connectionId
+            KeyType: HASH
+        GlobalSecondaryIndexes:
+          - IndexName: userIdIndex
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+            Projection:
+              ProjectionType: ALL
+        BillingMode: PAY_PER_REQUEST
+    ConversationMembersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: conversation-members-table
+        AttributeDefinitions:
+          - AttributeName: conversationId
+            AttributeType: S
+          - AttributeName: userId
+            AttributeType: S
+        KeySchema:
+          - AttributeName: conversationId
+            KeyType: HASH
+          - AttributeName: userId
+            KeyType: RANGE
+        BillingMode: PAY_PER_REQUEST
+    ChatMessageSNSTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: chat-message-topic
+
+
+functions:
+  connect:
+    handler: handlers/websocketConnect.connect
+    events:
+      - websocket:
+          route: $connect
+  disconnect:
+    handler: handlers/websocketConnect.disconnect
+    events:
+      - websocket:
+          route: $disconnect
+  default:
+    handler: handlers/broadCasting.default
+    events:
+      - websocket:
+          route: $default
+
+  snsFanoutHandler:
+    handler: handlers/snsFanoutHandler.handler
+    events:
+      - sns:
+          arn:
+            Ref: ChatMessageSNSTopic
+          topicName: chat-message-topic
+    environment:
+      WEBSOCKET_TABLE_NAME: ${ssm:/WEBSOCKET_TABLE_NAME}
+      CONVERSATION_MEMBERS_TABLE: ${ssm:/CONVERSATION_MEMBERS_TABLE}
+      WEBSOCKET_DOMAIN: ${ssm:/WEBSOCKET_DOMAIN}
+      WEBSOCKET_STAGE: ${ssm:/WEBSOCKET_STAGE}
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - dynamodb:GetItem
+          - dynamodb:Query
+          - dynamodb:Scan
+          - dynamodb:DeleteItem
+        Resource:
+          - arn:aws:dynamodb:ap-south-1:171986746705:table/websocket-connections
+          - arn:aws:dynamodb:ap-south-1:171986746705:table/conversation-members-table
+      - Effect: Allow
+        Action:
+          - execute-api:ManageConnections
+        Resource: "*"
