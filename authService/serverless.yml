@@ -43,21 +43,32 @@ functions:
       - httpApi:
           path: /signUp
           method: post
+          cors: true
   confirmSignUp:
     handler: handlers/confirmSignUp.confirmSignUp
     events:
       - httpApi:
           path: /confirmSignUp
           method: post
+          cors: true
+  resendConfirmationCode:
+    handler: handlers/confirmSignUp.resendConfirmationCode
+    events:
+      - httpApi:
+          path: /resendConfirmationCode
+          method: post
+          cors: true
   signIn:
     handler: handlers/signIn.signIn
     events:
       - httpApi:
           path: /signIn
           method: post
+          cors: true
   signOut:
     handler: handlers/signOut.signOut
     events:
       - httpApi:
           path: /signOut
           method: post
+          cors: true

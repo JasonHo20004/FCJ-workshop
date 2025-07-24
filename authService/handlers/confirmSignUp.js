@@ -35,3 +35,33 @@ exports.confirmSignUp = async (event) => {
         };
     }
 }
+
+exports.resendConfirmationCode = async (event) => {
+    const { email } = JSON.parse(event.body);
+
+    const params = {
+        ClientId: clientId,
+        Username: email
+    };
+
+    try {
+        const command = new ResendConfirmationCodeCommand(params);
+        const response = await client.send(command);
+        return {
+            statusCode: 200,
+            body: JSON.stringify({
+                message: 'Confirmation code resent successfully',
+                data: response
+            })
+        };
+    } catch (error) {
+        console.error('Error resending confirmation code:', error);
+        return {
+            statusCode: 500,
+            body: JSON.stringify({
+                message: 'Error resending confirmation code',
+                error: error.message
+            })
+        };
+    }
+}

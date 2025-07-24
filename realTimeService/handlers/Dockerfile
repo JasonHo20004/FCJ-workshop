@@ -11,13 +11,13 @@ COPY ../../package.json ../../package-lock.json ./
 RUN npm install --only=production
 
 # Copy the redis subscriber script
-COPY redisSubscriber.js ./
+COPY realTimeService/handlers/redisSubscriber.js ./
 
 ENV AWS_REGION=ap-south-1
 ENV REDIS_HOST=my-redis-y9xtus.serverless.aps1.cache.amazonaws.com:6379
 ENV CONVERSATION_MEMBERS_TABLE=conversation-members-table
 ENV WEBSOCKET_TABLE_NAME=websocket-connections
-ENV WEBSOCKET_DOMAIN=wss://zdjjqp08ue.execute-api.ap-south-1.amazonaws.com
+ENV WEBSOCKET_DOMAIN=wss://ualfu4jq8j.execute-api.ap-south-1.amazonaws.com
 ENV WEBSOCKET_STAGE=dev
 
 # Start the subscriber

@@ -14,7 +14,6 @@ provider:
     COGNITO_USER_POOL_ID: ${ssm:/COGNITO_USER_POOL_ID}
     CONVERSATION_MEMBERS_TABLE: ${ssm:/CONVERSATION_MEMBERS_TABLE}
     REDIS_HOST: ${ssm:/REDIS_HOST}
-
   iamRoleStatements:
     - Effect: Allow
       Action:
